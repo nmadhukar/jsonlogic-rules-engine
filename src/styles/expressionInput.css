@@ -1,0 +1,43 @@
+/* src/styles/expressionInput.css */
+
+.expression-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.expression-editor .input-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    padding: 0 8px;
+}
+
+.expression-editor .input-prefix {
+    font-weight: bold;
+    color: #666;
+    margin-right: 8px;
+    font-size: 0.9em;
+}
+
+.expression-editor input {
+    flex: 1;
+    border: none;
+    padding: 8px 0;
+    outline: none;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+}
+
+.expression-editor input.invalid {
+    color: #d32f2f;
+}
+
+.expression-editor .error-message {
+    color: #d32f2f;
+    font-size: 0.8em;
+    padding-left: 4px;
+}

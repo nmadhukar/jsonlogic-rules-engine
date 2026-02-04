@@ -1,0 +1,164 @@
+import { Router } from 'express';
+import jsonLogic from 'json-logic-js';
+import { executePipeline } from '../engine/pipelineExecutor';
+import type { Request, Response } from 'express';
+
+// NOTE: This assumes a 'db' knex instance or similar query builder is available globally or imported
+// For this standalone file, we'll declare a mock db type
+declare const db: any;
+
+const router = Router();
+
+// GET /api/rules — list rules with optional filters
+router.get('/rules', async (req: Request, res: Response) => {
+    try {
+        const { category, entity_type, entity_id, active_only = 'true' } = req.query;
+        let query = db('business_rules');
+
+        if (active_only === 'true') query = query.where('is_active', true);
+        if (category) query = query.where('category', category);
+        if (entity_type) query = query.where('entity_type', entity_type);
+        if (entity_id) query = query.where('entity_id', entity_id);
+
+        const rules = await query.orderBy('updated_at', 'desc');
+        res.json(rules);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/rules/:id — get single rule
+router.get('/rules/:id', async (req: Request, res: Response) => {
+    try {
+        const rule = await db('business_rules').where('id', req.params.id).first();
+        if (!rule) return res.status(404).json({ error: 'Rule not found' });
+        res.json(rule);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/rules — create new rule
+router.post('/rules', async (req: Request, res: Response) => {
+    try {
+        const { name, mode, json_logic, table_def, category, entity_type, entity_id } = req.body;
+        // @ts-ignore - req.user is often added by auth middleware
+        const userId = req.user?.id;
+
+        const [rule] = await db('business_rules')
+            .insert({
+                name,
+                mode,
+                json_logic,
+                table_def,
+                category,
+                entity_type,
+                entity_id,
+                created_by: userId
+            })
+            .returning('*');
+
+        res.status(201).json(rule);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUT /api/rules/:id — update (saves history)
+router.put('/rules/:id', async (req: Request, res: Response) => {
+    try {
+        const existing = await db('business_rules').where('id', req.params.id).first();
+        if (!existing) return res.status(404).json({ error: 'Rule not found' });
+
+        // @ts-ignore
+        const userId = req.user?.id;
+
+        // Save history
+        await db('business_rules_history').insert({
+            rule_id: existing.id,
+            version: existing.version,
+            json_logic: existing.json_logic,
+            table_def: existing.table_def,
+            changed_by: userId,
+        });
+
+        // Update
+        const { name, mode, json_logic, table_def } = req.body;
+        const [updated] = await db('business_rules')
+            .where('id', req.params.id)
+            .update({
+                name, mode, json_logic, table_def,
+                version: existing.version + 1,
+                updated_by: userId,
+                updated_at: db.fn.now(),
+            })
+            .returning('*');
+
+        res.json(updated);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/rules/:id/evaluate — evaluate a stored rule
+router.post('/rules/:id/evaluate', async (req: Request, res: Response) => {
+    try {
+        const rule = await db('business_rules').where('id', req.params.id).first();
+        if (!rule) return res.status(404).json({ error: 'Rule not found' });
+
+        const start = performance.now();
+        let result;
+
+        if (rule.mode === 'pipeline') {
+            // Pipeline: json_logic contains the steps array
+            const executionResult = executePipeline(rule.json_logic, req.body);
+            result = executionResult;
+        } else {
+            // Single rule (Condition or Table)
+            // Note: Table logic is compiled to json_logic before saving, so we just run it
+            result = jsonLogic.apply(rule.json_logic, req.body);
+        }
+
+        res.json({
+            result,
+            duration_ms: performance.now() - start,
+        });
+    } catch (e: any) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
+// POST /api/rules/evaluate — evaluate inline (no stored rule)
+router.post('/rules/evaluate', async (req: Request, res: Response) => {
+    try {
+        const { rule, data, mode } = req.body;
+        const start = performance.now();
+        let result;
+
+        if (mode === 'pipeline') {
+            const executionResult = executePipeline(rule, data);
+            result = executionResult;
+        } else {
+            result = jsonLogic.apply(rule, data);
+        }
+
+        res.json({ result, duration_ms: performance.now() - start });
+    } catch (e: any) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
+// GET /api/rules/:id/history — version history
+router.get('/rules/:id/history', async (req: Request, res: Response) => {
+    try {
+        const history = await db('business_rules_history')
+            .where('rule_id', req.params.id)
+            .orderBy('version', 'desc')
+            .limit(50);
+        res.json(history);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+export default router;
