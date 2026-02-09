@@ -110,23 +110,12 @@ function checkTests() {
 }
 
 // 5. Config Validation
+// 5. Config Validation
 function checkConfig() {
     console.log('⚙️ Checking Configuration...');
-    const configPath = path.join(PROJECT_ROOT, 'src/config');
-    const failures: string[] = [];
-
-    if (!fs.existsSync(path.join(configPath, 'ruleFields.ts'))) failures.push('Missing ruleFields.ts');
-    if (!fs.existsSync(path.join(configPath, 'ruleTemplates.ts'))) failures.push('Missing ruleTemplates.ts');
-
-    // Simple content check - in real world would import and check length
-    const fieldsContent = fs.readFileSync(path.join(configPath, 'ruleFields.ts'), 'utf-8');
-    if (!fieldsContent.includes('export const ruleFields')) failures.push('ruleFields.ts invalid export');
-
-    if (failures.length > 0) {
-        results.push({ check: 'Config Validation', status: 'FAIL', details: failures });
-    } else {
-        results.push({ check: 'Config Validation', status: 'PASS', message: 'Configuration files present and valid.' });
-    }
+    // Config functionality moved to backend database. 
+    // No static files to check.
+    results.push({ check: 'Config Validation', status: 'PASS', message: 'Configuration migrated to backend.' });
 }
 
 // Run All Checks

@@ -12,14 +12,14 @@
  *
  * @example
  * ```tsx
- * import { UnifiedRuleEditor, ruleFields, registerCustomOperators } from 'jsonlogic-rules-engine';
+ * import { UnifiedRuleEditor, registerCustomOperators } from 'jsonlogic-rules-engine';
  *
  * // Register custom operators once at app startup
  * registerCustomOperators();
  *
  * function App() {
  *   const [rule, setRule] = useState(null);
- *   return <UnifiedRuleEditor fields={ruleFields} onChange={setRule} />;
+ *   return <UnifiedRuleEditor fields={[]} onChange={setRule} />;
  * }
  * ```
  */
@@ -87,14 +87,6 @@ export {
     allOperators,
 } from './config/customOperators';
 
-export {
-    ruleFields,
-} from './config/ruleFields';
-
-export {
-    ruleTemplates,
-    type RuleTemplate,
-} from './config/ruleTemplates';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -110,18 +102,17 @@ export type {
     PipelineStep,
 } from './types/rulePipeline';
 
+export type {
+    Domain,
+    Rule
+} from './types/domain';
+
 // ─────────────────────────────────────────────────────────────────────────────
-// API Client (for .NET backend integration)
+// API Client (for NestJS backend integration)
 // ─────────────────────────────────────────────────────────────────────────────
 export {
     rulesApi,
     useRulesList,
     useRule,
-    useEvaluate,
-    useApiHealth,
-    type BusinessRule,
-    type EvaluationResult,
-    type EvaluateRuleRequest,
-    type CreateRuleRequest,
-    type UpdateRuleRequest,
+    RulesApiError
 } from './api';

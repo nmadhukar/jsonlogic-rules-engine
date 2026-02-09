@@ -56,11 +56,13 @@ export function UnifiedRuleEditor({ fields, initialValue, onChange }: UnifiedRul
                 )}
             </div>
 
-            {/* Debug/Preview Area */}
-            <div style={{ marginTop: 20, padding: 10, background: '#eee', fontSize: '0.8em' }}>
-                <strong>Current Value (JSONLogic):</strong>
-                <pre>{JSON.stringify(jsonLogic, null, 2)}</pre>
-            </div>
+            {/* Debug/Preview Area — only in development */}
+            {import.meta.env.DEV && (
+                <div style={{ marginTop: 20, padding: 10, background: '#eee', fontSize: '0.8em' }}>
+                    <strong>Current Value (JSONLogic):</strong>
+                    <pre>{JSON.stringify(jsonLogic, null, 2)}</pre>
+                </div>
+            )}
         </div>
     );
 }

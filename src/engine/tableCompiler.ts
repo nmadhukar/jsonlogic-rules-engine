@@ -109,7 +109,13 @@ function compileCollectTable(
     for (const row of table.rows) {
         const condition = compileRowCondition(row, inputColumns);
         const output = compileRowOutput(row, outputColumns);
-        pairs.push([condition, output]);
+
+        // CRITICAL FIX: Wrap output in an "if" block to prevent eager evaluation.
+        // Standard json-logic evaluates all arguments before passing to the operator.
+        // This ensures 'output' is only evaluated if 'condition' is true.
+        const protectedOutput = { if: [condition, output, null] };
+
+        pairs.push([condition, protectedOutput]);
     }
 
     // Wrap in extra array so json-logic-js passes it as single argument
@@ -271,7 +277,7 @@ export function addTableRow(
     cells: Record<string, string> = {}
 ): DecisionTable {
     const newRow: DecisionTableRow = {
-        id: `row_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+        id: crypto.randomUUID(), // Use standard UUID
         cells,
     };
 

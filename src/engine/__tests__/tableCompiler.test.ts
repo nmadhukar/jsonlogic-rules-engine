@@ -223,10 +223,23 @@ describe('Table Compiler', () => {
             expect(pairs).toHaveLength(3);
 
             // Each pair is [condition, output]
-            expect(pairs[0][1]).toBe('loyalty_bonus');
-            expect(pairs[1][1]).toBe('vip_discount');
-            expect(pairs[2][0]).toBe(true); // wildcard
-            expect(pairs[2][1]).toBe('standard_rate');
+            // Updated for lazy evaluation: output is wrapped in { if: [condition, output, null] }
+
+            // Row 1
+            expect(pairs[0][1]).toEqual({
+                if: [{ '==': [{ var: 'customer.type' }, 'gold'] }, 'loyalty_bonus', null]
+            });
+
+            // Row 2
+            expect(pairs[1][1]).toEqual({
+                if: [{ in: [{ var: 'customer.type' }, ['gold', 'platinum']] }, 'vip_discount', null]
+            });
+
+            // Row 3 (Wildcard)
+            expect(pairs[2][0]).toBe(true);
+            expect(pairs[2][1]).toEqual({
+                if: [true, 'standard_rate', null]
+            });
         });
 
         it('handles multiple output columns', () => {

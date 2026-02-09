@@ -90,7 +90,7 @@ export function DecisionTableEditor({
     // Add row
     const addRow = useCallback(() => {
         const newRow: DecisionTableRow = {
-            id: `row_${Date.now()}`,
+            id: crypto.randomUUID(),
             cells: {},
         };
         // Initialize all cells with empty/wildcard

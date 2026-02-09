@@ -1,16 +1,19 @@
 import { useState, useMemo } from 'react';
-import { ruleTemplates, type RuleTemplate } from '../config/ruleTemplates';
+import type { RuleTemplate } from '../types/domain';
 
 interface TemplateSelectorProps {
+    /** List of templates to display */
+    templates?: RuleTemplate[];
     /** Callback when a template is selected */
     onSelect: (template: RuleTemplate) => void;
-    /** Additional custom templates */
+    /** Additional custom templates (deprecated, merge into templates prop) */
     customTemplates?: RuleTemplate[];
     /** Show as dropdown or list */
     variant?: 'dropdown' | 'list' | 'cards';
 }
 
 export function TemplateSelector({
+    templates = [],
     onSelect,
     customTemplates = [],
     variant = 'cards',
@@ -19,7 +22,7 @@ export function TemplateSelector({
     const [searchQuery, setSearchQuery] = useState('');
 
     // Combine built-in and custom templates
-    const allTemplates = useMemo(() => [...ruleTemplates, ...customTemplates], [customTemplates]);
+    const allTemplates = useMemo(() => [...templates, ...customTemplates], [templates, customTemplates]);
 
     // Get unique categories
     const categories = useMemo(() => {

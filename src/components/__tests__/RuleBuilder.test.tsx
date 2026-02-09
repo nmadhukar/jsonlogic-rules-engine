@@ -1,7 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { RuleBuilder } from '../RuleBuilder';
-import { ruleFields } from '../../config/ruleFields';
+// Mock fields for testing
+const ruleFields: any[] = [
+    { name: 'age', label: 'Age', inputType: 'number' },
+    { name: 'customer.tier', label: 'Tier', inputType: 'text', valueEditorType: 'select', values: [{ name: 'gold', label: 'Gold' }] }
+];
 
 describe('RuleBuilder', () => {
     it('renders without crashing', () => {

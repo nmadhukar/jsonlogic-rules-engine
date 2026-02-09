@@ -1,58 +1,13 @@
 /**
- * API client for communicating with the .NET Rules Engine backend
+ * API client for the NestJS Backend
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-// Types matching .NET backend models
-export interface BusinessRule {
-    id: string;
-    name: string;
-    description?: string;
-    type: 'Simple' | 'DecisionTable' | 'Pipeline';
-    category?: string;
-    jsonLogic?: any;
-    tableDefinition?: any;
-    pipelineDefinition?: any;
-    createdAt: string;
-    updatedAt: string;
-    createdBy?: string;
-    updatedBy?: string;
-    isActive: boolean;
-    version: number;
-}
+import type { Domain, Rule } from '../types/domain';
 
-export interface EvaluationResult {
-    success: boolean;
-    output: any;
-    error?: string;
-    stepOutputs?: Record<string, any>;
-    executionTime: string;
-}
-
-export interface EvaluateRuleRequest {
-    ruleId?: string;
-    jsonLogic?: any;
-    data: any;
-}
-
-export interface CreateRuleRequest {
-    name: string;
-    description?: string;
-    type: 'Simple' | 'DecisionTable' | 'Pipeline';
-    category?: string;
-    jsonLogic?: any;
-    tableDefinition?: any;
-    pipelineDefinition?: any;
-}
-
-export interface UpdateRuleRequest extends CreateRuleRequest {
-    isActive?: boolean;
-}
-
-class RulesApiError extends Error {
+export class RulesApiError extends Error {
     status: number;
-
     constructor(status: number, message: string) {
         super(message);
         this.name = 'RulesApiError';
@@ -65,101 +20,84 @@ async function handleResponse<T>(response: Response): Promise<T> {
         const errorText = await response.text();
         throw new RulesApiError(response.status, errorText || `HTTP ${response.status}`);
     }
-
+    if (response.status === 204) return undefined as T;
     const text = await response.text();
     if (!text) return undefined as T;
-
     try {
-        return JSON.parse(text);
+        return JSON.parse(text) as T;
     } catch {
-        return text as unknown as T;
+        throw new RulesApiError(response.status, `Invalid JSON: ${text.substring(0, 100)}`);
     }
 }
 
-/**
- * Rules API client
- */
 export const rulesApi = {
-    /**
-     * Get all rules with optional filters
-     */
-    async listRules(params?: {
-        category?: string;
-        type?: string;
-        activeOnly?: boolean;
-    }): Promise<BusinessRule[]> {
-        const searchParams = new URLSearchParams();
-        if (params?.category) searchParams.set('category', params.category);
-        if (params?.type) searchParams.set('type', params.type);
-        if (params?.activeOnly !== undefined) searchParams.set('activeOnly', String(params.activeOnly));
+    // ── Domains ──
+    getDomains: async (): Promise<Domain[]> => {
+        const response = await fetch(`${API_BASE_URL}/domains`);
+        return handleResponse<Domain[]>(response);
+    },
 
-        const url = `${API_BASE_URL}/api/rules${searchParams.toString() ? '?' + searchParams : ''}`;
+    getDomain: async (id: string): Promise<Domain> => {
+        const response = await fetch(`${API_BASE_URL}/domains/${id}`);
+        return handleResponse<Domain>(response);
+    },
+
+    createDomain: async (data: any): Promise<Domain> => {
+        const response = await fetch(`${API_BASE_URL}/domains`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        return handleResponse<Domain>(response);
+    },
+
+    updateDomain: async (id: string, data: any): Promise<Domain> => {
+        const response = await fetch(`${API_BASE_URL}/domains/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        return handleResponse<Domain>(response);
+    },
+
+    deleteDomain: async (id: string): Promise<void> => {
+        const response = await fetch(`${API_BASE_URL}/domains/${id}`, {
+            method: 'DELETE',
+        });
+        return handleResponse<void>(response);
+    },
+
+    // ── Rules ──
+    getRules: async (domainId?: string): Promise<Rule[]> => {
+        const url = domainId
+            ? `${API_BASE_URL}/rules?domainId=${domainId}`
+            : `${API_BASE_URL}/rules`;
         const response = await fetch(url);
-        return handleResponse<BusinessRule[]>(response);
+        return handleResponse<Rule[]>(response);
     },
 
-    /**
-     * Get a single rule by ID
-     */
-    async getRule(id: string): Promise<BusinessRule> {
-        const response = await fetch(`${API_BASE_URL}/api/rules/${id}`);
-        return handleResponse<BusinessRule>(response);
-    },
-
-    /**
-     * Create a new rule
-     */
-    async createRule(rule: CreateRuleRequest): Promise<BusinessRule> {
-        const response = await fetch(`${API_BASE_URL}/api/rules`, {
+    createRule: async (rule: Partial<Rule>): Promise<Rule> => {
+        const response = await fetch(`${API_BASE_URL}/rules`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(rule),
         });
-        return handleResponse<BusinessRule>(response);
+        return handleResponse<Rule>(response);
     },
 
-    /**
-     * Update an existing rule
-     */
-    async updateRule(id: string, rule: UpdateRuleRequest): Promise<BusinessRule> {
-        const response = await fetch(`${API_BASE_URL}/api/rules/${id}`, {
+    updateRule: async (id: string, rule: Partial<Rule>): Promise<Rule> => {
+        const response = await fetch(`${API_BASE_URL}/rules/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(rule),
         });
-        return handleResponse<BusinessRule>(response);
+        return handleResponse<Rule>(response);
     },
 
-    /**
-     * Delete a rule
-     */
-    async deleteRule(id: string): Promise<void> {
-        const response = await fetch(`${API_BASE_URL}/api/rules/${id}`, {
+    deleteRule: async (id: string): Promise<void> => {
+        const response = await fetch(`${API_BASE_URL}/rules/${id}`, {
             method: 'DELETE',
         });
-        await handleResponse<void>(response);
-    },
-
-    /**
-     * Evaluate a rule against data
-     * Can evaluate a stored rule by ID or inline JSONLogic
-     */
-    async evaluate(request: EvaluateRuleRequest): Promise<EvaluationResult> {
-        const response = await fetch(`${API_BASE_URL}/api/evaluate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(request),
-        });
-        return handleResponse<EvaluationResult>(response);
-    },
-
-    /**
-     * Check API health
-     */
-    async healthCheck(): Promise<{ status: string; timestamp: string }> {
-        const response = await fetch(`${API_BASE_URL}/health`);
-        return handleResponse<{ status: string; timestamp: string }>(response);
+        return handleResponse<void>(response);
     },
 };
-
-export default rulesApi;

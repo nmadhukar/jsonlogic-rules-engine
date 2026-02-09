@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ══════════════════════════════════════════════
+//  CORE MODELS
+// ══════════════════════════════════════════════
+
+model Domain {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  description String?
+  fields      Json        // Rule fields definition (Field[])
+  templates   Json        // Rule templates (RuleTemplate[])
+  presets     Json        // Simulator presets (DataPreset[])
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  rules       Rule[]
+  testSuites  TestSuite[]
+}
+
+model Rule {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  domainId    String
+  domain      Domain        @relation(fields: [domainId], references: [id])
+  jsonLogic   Json          // The actual rule logic
+  priority    Int           @default(0)
+  isActive    Boolean       @default(true)
+  startDate   DateTime?     // Scheduling: active from
+  endDate     DateTime?     // Scheduling: active until
+  environment String        @default("production") // dev | staging | production
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  versions    RuleVersion[]
+}
+
+// ══════════════════════════════════════════════
+//  VERSIONING
+// ══════════════════════════════════════════════
+
+model RuleVersion {
+  id        String   @id @default(uuid())
+  ruleId    String
+  rule      Rule     @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  version   Int
+  name      String
+  jsonLogic Json
+  changeMsg String?
+  changedBy String   @default("system")
+  createdAt DateTime @default(now())
+
+  @@unique([ruleId, version])
+  @@index([ruleId])
+}
+
+// ══════════════════════════════════════════════
+//  AUDIT TRAIL
+// ══════════════════════════════════════════════
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  entityType String   // "Domain" | "Rule" | "TestSuite" | "ApiKey"
+  entityId   String
+  action     String   // "CREATE" | "UPDATE" | "DELETE" | "EXECUTE" | "ROLLBACK"
+  actor      String   @default("system")
+  before     Json?
+  after      Json?
+  metadata   Json?    // Extra context (e.g. execution results, IP)
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([action])
+}
+
+// ══════════════════════════════════════════════
+//  TEST SUITES
+// ══════════════════════════════════════════════
+
+model TestSuite {
+  id        String     @id @default(uuid())
+  name      String
+  domainId  String
+  domain    Domain     @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  cases     TestCase[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model TestCase {
+  id             String    @id @default(uuid())
+  suiteId        String
+  suite          TestSuite @relation(fields: [suiteId], references: [id], onDelete: Cascade)
+  name           String
+  inputData      Json      // The test input
+  expectedResult Json      // Expected outcomes { ruleId: boolean/value }
+  createdAt      DateTime  @default(now())
+}
+
+// ══════════════════════════════════════════════
+//  API KEYS
+// ══════════════════════════════════════════════
+
+model ApiKey {
+  id        String    @id @default(uuid())
+  name      String
+  keyHash   String    @unique
+  prefix    String    // First 8 chars for identification
+  scopes    Json      @default("[]") // ["execute", "read", "admin"]
+  isActive  Boolean   @default(true)
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+}
+
+// ══════════════════════════════════════════════
+//  WEBHOOKS
+// ══════════════════════════════════════════════
+
+model Webhook {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  events    Json     // ["rule.created", "rule.updated", "rule.deleted", "rule.executed"]
+  secret    String?  // HMAC signing secret
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
