@@ -6,6 +6,7 @@ import { PipelineEditor } from '../components/PipelineEditor';
 import { SimulatorPanel } from '../components/SimulatorPanel';
 import { TemplateSelector } from '../components/TemplateSelector';
 import { SyntaxHelp } from '../components/SyntaxHelp';
+import { AiPanel } from '../components/AiPanel';
 import { executePipeline } from '../engine/pipelineExecutor';
 import type { DecisionTable } from '../types/decisionTable';
 import type { RulePipeline } from '../types/rulePipeline';
@@ -38,6 +39,8 @@ export const Playground = () => {
         id: 'pl-1', name: 'New Pipeline', steps: []
     });
     const [showSimulator, setShowSimulator] = useState(false);
+    const [showAi, setShowAi] = useState(false);
+    const ruleName = 'My Rule';
 
     // Domain State
     const [domains, setDomains] = useState<Domain[]>([]);
@@ -169,6 +172,15 @@ export const Playground = () => {
                 </li>
                 <li className="nav-item ms-auto">
                     <button
+                        className={`nav-link ${showAi ? 'active' : ''}`}
+                        onClick={() => setShowAi(!showAi)}
+                        style={showAi ? { color: '#646cff' } : {}}
+                    >
+                        🤖 {showAi ? 'Hide' : 'Show'} AI
+                    </button>
+                </li>
+                <li className="nav-item">
+                    <button
                         className={`nav-link ${showSimulator ? 'active' : ''}`}
                         onClick={() => setShowSimulator(!showSimulator)}
                     >
@@ -247,6 +259,22 @@ export const Playground = () => {
                                     variant="cards"
                                 />
                             </div>
+                        </div>
+                    )}
+
+                    {/* AI Panel */}
+                    {showAi && (
+                        <div className="mt-3">
+                            <AiPanel
+                                domainFields={selectedDomain.fields}
+                                domainId={selectedDomain.id}
+                                currentRule={currentRule}
+                                currentRuleName={ruleName}
+                                onRuleGenerated={(jsonLogic) => {
+                                    setSimpleRule(jsonLogic);
+                                    setMode('simple');
+                                }}
+                            />
                         </div>
                     )}
 

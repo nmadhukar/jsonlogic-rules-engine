@@ -1,0 +1,364 @@
+/* ─── Documentation Pages Shared Styles ─── */
+
+.docs-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem 2rem;
+  text-align: left;
+  color: #e0e0e0;
+}
+
+/* ─── Header ─── */
+.docs-header {
+  text-align: center;
+  padding: 2.5rem 0 1.5rem;
+  border-bottom: 1px solid rgba(100, 108, 255, 0.2);
+  margin-bottom: 2rem;
+}
+
+.docs-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #646cff, #9b59b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.docs-header .subtitle {
+  color: #999;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* ─── Table of Contents ─── */
+.docs-toc {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(100, 108, 255, 0.15);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.docs-toc h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #646cff;
+  margin-bottom: 1rem;
+}
+
+.docs-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.4rem;
+}
+
+.docs-toc li a {
+  display: block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  color: #aaa;
+  text-decoration: none;
+  font-size: 0.92rem;
+  transition: all 0.2s;
+}
+
+.docs-toc li a:hover {
+  background: rgba(100, 108, 255, 0.1);
+  color: #646cff;
+}
+
+/* ─── Section ─── */
+.docs-section {
+  margin-bottom: 3rem;
+  scroll-margin-top: 80px;
+}
+
+.docs-section h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #fff;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(100, 108, 255, 0.3);
+  margin-bottom: 1.2rem;
+}
+
+.docs-section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ddd;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.docs-section p,
+.docs-section li {
+  line-height: 1.7;
+  color: #bbb;
+  font-size: 0.95rem;
+}
+
+.docs-section ul,
+.docs-section ol {
+  padding-left: 1.5rem;
+}
+
+.docs-section ul li {
+  margin-bottom: 0.3rem;
+}
+
+/* ─── Endpoint Cards ─── */
+.endpoint-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.2rem;
+  transition: border-color 0.2s;
+}
+
+.endpoint-card:hover {
+  border-color: rgba(100, 108, 255, 0.3);
+}
+
+.endpoint-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.method-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  min-width: 52px;
+  text-align: center;
+}
+
+.method-badge.get { background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+.method-badge.post { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+.method-badge.put { background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3); }
+.method-badge.patch { background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); }
+.method-badge.delete { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+.endpoint-path {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.95rem;
+  color: #e0e0e0;
+}
+
+.endpoint-desc {
+  color: #999;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+/* ─── Code Blocks ─── */
+.docs-code {
+  background: #1a1a2e;
+  border: 1px solid rgba(100, 108, 255, 0.15);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  margin: 0.8rem 0 1rem;
+  position: relative;
+}
+
+.docs-code pre {
+  margin: 0;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: #c8d6e5;
+  white-space: pre;
+}
+
+.docs-code .code-label {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(100, 108, 255, 0.2);
+  color: #646cff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0 8px 0 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ─── Tables ─── */
+.docs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+
+.docs-table thead th {
+  text-align: left;
+  padding: 0.7rem 1rem;
+  background: rgba(100, 108, 255, 0.08);
+  color: #999;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.docs-table tbody td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #bbb;
+}
+
+.docs-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.docs-table code {
+  background: rgba(100, 108, 255, 0.1);
+  color: #a5b4fc;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+/* ─── Info Boxes ─── */
+.docs-info {
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.docs-info.tip {
+  background: rgba(34, 197, 94, 0.08);
+  border-left: 3px solid #22c55e;
+  color: #a7f3d0;
+}
+
+.docs-info.warning {
+  background: rgba(234, 179, 8, 0.08);
+  border-left: 3px solid #eab308;
+  color: #fde68a;
+}
+
+.docs-info.note {
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid #3b82f6;
+  color: #bfdbfe;
+}
+
+.docs-info strong {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+/* ─── Inline Code ─── */
+.docs-section code {
+  background: rgba(100, 108, 255, 0.1);
+  color: #a5b4fc;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+}
+
+/* ─── Tabs for code examples ─── */
+.docs-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: -1px;
+  position: relative;
+  z-index: 1;
+}
+
+.docs-tab {
+  padding: 0.5rem 1.2rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.docs-tab.active {
+  background: #1a1a2e;
+  color: #646cff;
+  border-color: rgba(100, 108, 255, 0.15);
+}
+
+.docs-tab:hover:not(.active) {
+  color: #bbb;
+}
+
+.docs-tabbed-code {
+  border-top-left-radius: 0;
+}
+
+/* ─── Status Badge ─── */
+.status-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.status-badge.required { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.status-badge.optional { background: rgba(100, 108, 255, 0.15); color: #646cff; }
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .docs-page {
+    padding: 0 1rem 3rem 1rem;
+  }
+
+  .docs-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .docs-toc ul {
+    grid-template-columns: 1fr;
+  }
+
+  .endpoint-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+}
+
+/* ─── Light Mode ─── */
+@media (prefers-color-scheme: light) {
+  .docs-page { color: #333; }
+  .docs-section h2 { color: #111; }
+  .docs-section h3 { color: #222; }
+  .docs-section p, .docs-section li { color: #555; }
+  .endpoint-card { background: #f8f9fa; border-color: #e0e0e0; }
+  .endpoint-path { color: #333; }
+  .endpoint-desc { color: #666; }
+  .docs-code { background: #f5f5f7; border-color: #e0e0e0; }
+  .docs-code pre { color: #333; }
+  .docs-toc { background: #f8f9fa; border-color: #e0e0e0; }
+  .docs-toc li a { color: #555; }
+  .docs-table tbody td { color: #555; border-bottom-color: #e0e0e0; }
+  .docs-table thead th { background: #f0f0f5; color: #666; }
+}

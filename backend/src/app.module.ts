@@ -8,6 +8,7 @@ import { TestingModule } from './testing/testing.module';
 import { AuthModule } from './auth/auth.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { AnalysisModule } from './analysis/analysis.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -20,6 +21,8 @@ import { AnalysisModule } from './analysis/analysis.module';
     TestingModule,
     AuthModule,
     AnalysisModule,
+    AiModule,
   ],
 })
 export class AppModule { }
+
